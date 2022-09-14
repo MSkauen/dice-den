@@ -9,7 +9,7 @@ const LoadingView = () => {
         <h1 className="text-lg text-white font-bold">Loading Fujitora's Dice Den</h1>        
 
       </div>
-        <CircleLoader className="white" size={50} color="#7c3aed" />
+        <CircleLoader className="white" size={50} color="#36d7b7" />
     </div>
   );
 };
