@@ -23,8 +23,8 @@ function Header() {
             </div>
 
             <div className='hidden md:flex md:col-span-3 items-center
-            justify-center rounded-md'>
-                <div className='bg-[#0a1f1c] p-4 space-x-2'>
+            justify-center'>
+                <div className='bg-[#191a25] rounded-md p-4 space-x-2'>
                     <NavButton isActive title='Buy tickets'/>
                     <NavButton onClick={disconnect} title='Logout'/>
                 </div>

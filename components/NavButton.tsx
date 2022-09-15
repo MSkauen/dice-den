@@ -11,7 +11,7 @@ function NavButton({title, isActive, onClick}: Props) {
     <button 
         onClick={onClick}
         className={`${
-            isActive && "bg-[#036756]"
+            isActive && "bg-[#2c2e42]"
             } hover:bg-[#036756] text-white py-2 px-4 rounded font-bold`}>
         {title}
     </button>
