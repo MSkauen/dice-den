@@ -2,7 +2,7 @@ import { useMetamask } from "@thirdweb-dev/react";
 
 const LoginView = () => {
   const connectWithMetamask = useMetamask();
-
+  
   return (
     <div className="bg-[#040711] min-h-screen flex flex-col
     items-center justify-center text-center">

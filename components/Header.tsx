@@ -5,7 +5,7 @@ import { useAddress, useDisconnect } from '@thirdweb-dev/react';
 function Header() {
     const address = useAddress();
     const disconnect = useDisconnect();
-
+        
     return (
         <header className='grid grid-cols-2 md:grid-cols-5 justify-between
         items-center p-5'>
@@ -17,7 +17,7 @@ function Header() {
                 />
                 <div>
                     <h1 className='text-lg text-white font-bold'>Fujitora's Dice Den</h1>
-                    <p className='text-xs text-emerald-500 truncate'>User: {address?.substring(0,5)}...{address?.substring
+                    <p className='text-xs text-violet-600 truncate'>User: {address?.substring(0,5)}...{address?.substring
                     (address.length, address.length - 5)}</p>
                 </div>
             </div>

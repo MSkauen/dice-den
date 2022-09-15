@@ -1,7 +1,14 @@
-import { useAddress, useContract, useMetamask, useDisconnect, useContractRead, useContractWrite } from '@thirdweb-dev/react';
+import { 
+  useAddress,
+  useContract,
+  useMetamask,
+  useDisconnect,
+  useContractRead,
+  useContractWrite
+} from '@thirdweb-dev/react';
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from "../components/Header";
 import LoadingView from '../components/LoadingView';
 import LoginView from "../components/LoginView";
@@ -11,7 +18,9 @@ import CountdownTimer from '../components/CountdownTimer';
 import toast from "react-hot-toast"
 const Home: NextPage = () => {
   const address = useAddress();
+  const [userTickets, setUserTickets] = useState(0);
   const [quantity, setQuantity] = useState<number>(1);
+
   const { contract, isLoading } = useContract(
     process.env.NEXT_PUBLIC_LOTTERY_CONTRACT_ADDRESS
   );
@@ -33,6 +42,22 @@ const Home: NextPage = () => {
   const { mutateAsync: BuyTickets } = useContractWrite(
     contract, "BuyTickets"
   );
+  const { data: tickets } = useContractRead(
+    contract, "getTickets"
+  );
+
+  useEffect(() => {
+    if (!tickets) return;
+
+    const totalTickets: string[] = tickets;
+
+    const noOfUserTickets = totalTickets.reduce(
+      (total, ticketAddress) => (ticketAddress === address ? total + 1 : total),
+       0
+      );
+
+    setUserTickets(noOfUserTickets)
+  }, [tickets, address]);
 
   const handleClick = async () => {
     if (!ticketPrice) return;
@@ -119,7 +144,7 @@ const Home: NextPage = () => {
               </div>
 
               <div className='flex text-white items-center space-x-2
-              bg-[#091b1b] border-[#004337] border p-4'>
+              bg-[#040711] border-[#34364b] border p-4'>
                 <p>TICKETS</p>
                 <input
                   className='flex w-full bg-transparent text-right
@@ -134,7 +159,7 @@ const Home: NextPage = () => {
 
               <div className='space-y-2 mt-5'>
                 <div className='flex items-center justify-between
-                text-emerald-300 text-sm font-extrabold'>
+                text-violet-300 text-sm font-extrabold'>
                   <p>Total cost of tickets</p>
                   <p>
                   {ticketPrice && 
@@ -146,7 +171,7 @@ const Home: NextPage = () => {
                 </div>
 
                 <div className='flex items-center justify-between
-                text-emerald-300 text-xs italic'>
+                text-violet-300 text-xs italic'>
                   <p>Service fees</p>
                   <p>
                   {ticketCommission && 
@@ -158,7 +183,7 @@ const Home: NextPage = () => {
                 </div>
 
                 <div className='flex items-center justify-between
-                text-emerald-300 text-xs italic'>
+                text-violet-300 text-xs italic'>
                   <p>+ Network Fees</p>
                   <p>TBC</p>
                 </div>
@@ -171,16 +196,44 @@ const Home: NextPage = () => {
               }
               onClick={handleClick}
               className='mt-5 w-full bg-gradient-to-br
-                from-purple-500 to-violet-600 px-10 py-5
+                from-purple-700 to-violet-900 px-10 py-5
                 text-white rounded-md shadow-xl disabled:to-gray-600
                 disabled:from-gray-500 disabled:text-gray-100
-                  disabled:cursor-not-allowed'>
-                  Buy tickets
+                  disabled:cursor-not-allowed font-semibold'>
+                  Buy {quantity} tickets for {ticketPrice && 
+                    Number(ethers.utils.formatEther(ticketPrice.toString()))
+                     * quantity} {" "}
+                    {currency}
               </button>
             </div>
+
+            {userTickets > 0 && (
+              <div className='stats'>
+                <p className='text-lg mb-2'>You have {userTickets} Tickets in this draw</p>
+
+                <div className='flex max-w-sm flex-wrap gap-x-2 gap-y-2 pt-4'>
+                  {Array(userTickets).fill("").map((_, index) => (
+                        <img 
+                          className='animate-bounce text-xs italic
+                           text-violet-500 h-20 w-12' 
+                          src="/coin.gif" 
+                          alt=""
+                        />
+                  ))}
+                </div>
+              </div>
+            )};
           </div>
         </div>
       </div>
+      <footer className='border-t border-violet-500/20 flex items-center
+      text-white justify-between p-5'>
+        <p className='text-xs text-violet-400/30 pl-5'>
+          DISCLAIMER: We are not liable for any losses that are incurred
+          or problems that arise at our online casinos or elsewhere by this apps content.
+          If you are gambling, you are doing so completely and totally at your own risk.
+        </p>
+      </footer>
     </div>
   )
 }
