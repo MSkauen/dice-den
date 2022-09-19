@@ -7,10 +7,10 @@ const LoginView = () => {
     <div className="bg-[#040711] min-h-screen flex flex-col
     items-center justify-center text-center">
       <div className="flex flex-col items-center mb-10">
-        {/*<img
+        <img
             className="rounded-full h-56 w-56 mb-10"
-            src="/profile-image.png"
-  alt="" />*/}
+            src="/dice.png"
+            alt="" />
 
         <h1 className="text-6xl text-white font-bold">Fujitora's Dice Den</h1>
         <h2 className="text-white py-4">Get Started by connecting your Metamask</h2>

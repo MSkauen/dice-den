@@ -16,6 +16,8 @@ import { ethers } from 'ethers';
 import { currency } from '../constants';
 import CountdownTimer from '../components/CountdownTimer';
 import toast from "react-hot-toast"
+import Marquee from 'react-fast-marquee';
+import AdminControls from '../components/AdminControls';
 const Home: NextPage = () => {
   const address = useAddress();
   const [userTickets, setUserTickets] = useState(0);
@@ -44,6 +46,21 @@ const Home: NextPage = () => {
   );
   const { data: tickets } = useContractRead(
     contract, "getTickets"
+  );
+  const { data: winnings } = useContractRead(
+    contract, "getWinningsForAddress", address
+  );
+  const { mutateAsync: withdrawWinnings } = useContractWrite(
+    contract, "WithdrawWinnings"
+  );
+  const { data: lastWinner } = useContractRead(
+    contract, "lastWinner"
+  );
+  const { data: lastWinnerAmount } = useContractRead(
+    contract, "lastWinnerAmount"
+  );
+  const { data: isLotteryOperator } = useContractRead(
+    contract, "lotteryOperator"
   );
 
   useEffect(() => {
@@ -88,13 +105,27 @@ const Home: NextPage = () => {
     }
   }
 
+  const onWithdrawWinnings = async () => {
+    const notification = toast.loading("Withdrawing your coins...")
+    try {
+      await withdrawWinnings([{}])
+      
+      toast.success("Winnings withdrawn successfully!", {
+        id: notification,
+      });
+    } catch (err) {
+      toast.error("Something went wrong!", {
+        id: notification,
+      });
+    }
+  };
 
-  if (isLoading) return <LoadingView/>
+  if (isLoading) return <LoadingView/> /*bg-[#040711]*/
   if (!address) return <LoginView/>
 
   return (
-    <div className="bg-[#040711] bg-cover bg-center bg-no-repeat
-     min-h-screen flex flex-col">
+    <div className="bg-[#040711]
+     min-h-screen flex flex-col opacity-100">
       <Head>
         <title>Fujitora's Dice Den</title>
         <link rel="icon" href="/favicon.ico" />
@@ -102,6 +133,44 @@ const Home: NextPage = () => {
 
       <div className='flex-1'>
         <Header/>
+        <Marquee className='bg-[#191a25] p-5' gradient={false} speed={75}>
+          <div className='flex space-x-2 mx-10'>
+            <h4 className='text-white font-bold'>Last winner: 
+            </h4>
+              <p className='text-violet-600'>
+                {lastWinner?.toString()}
+              </p>
+            <h4 className='text-white font-bold'>Previous winnings: {" "}
+            </h4>
+              <p className='text-emerald-600'>
+              {lastWinnerAmount &&
+                ethers.utils.formatEther(
+                  lastWinnerAmount?.toString())
+                } {" "}
+                {currency}
+              </p>
+          </div>
+        </Marquee>
+        <div className="fadeTop mb-5"></div>
+        {isLotteryOperator === address && (
+          <div className=' flex justify-center'>
+            <AdminControls/>
+          </div>
+        )}
+        {winnings > 0 && (
+          <div className='max-w-md md:max-w-2xl lg:max-w-4xl mx-auto mt-5'>
+            <button onClick={onWithdrawWinnings} className='p-5 bg-gradient-to-br
+                from-yellow-700 to-yellow-500 animate-pulse text-center rounded-xl w-full'>
+              <p className='font-bold text-white'>You got lucky...</p>
+              <p className='text-white'>Total winnings: {ethers.utils.formatEther(
+                winnings.toString())} {" "}
+                {currency}
+              </p>
+              <br />
+              <p className='font-semibold text-white'>Click here to withdraw</p>
+            </button>
+          </div>
+        ) }
 
         <div className='space-y-5 md:space-y-0 m-5 md:flex md:flex-row
         items-start justify-center md:space-x-5 flex-1'>
@@ -124,7 +193,6 @@ const Home: NextPage = () => {
                 </div>
               </div>
               
-              {/*TIMER*/}
               <div className=' mt-5 mb-3'>
                   <CountdownTimer/>
               </div>
@@ -144,14 +212,14 @@ const Home: NextPage = () => {
               </div>
 
               <div className='flex text-white items-center space-x-2
-              bg-[#040711] border-[#34364b] border p-4'>
+              bg-[#040711] border-[#34364b] border-2 p-4 rounded-md'>
                 <p>TICKETS</p>
                 <input
                   className='flex w-full bg-transparent text-right
-                  outline-none '
+                  outline-none'
                   type="number"
                   min={1}
-                  max={5}
+                  max={10}
                   value={quantity}
                   onChange={e => setQuantity(Number(e.target.value))}
                 />
@@ -190,16 +258,12 @@ const Home: NextPage = () => {
               </div>
 
               <button 
-              disabled={
-                expiration?.toString() < Date.now().toString() ||
-                remainingTickets?.toNumber() === 0
-              }
-              onClick={handleClick}
-              className='mt-5 w-full bg-gradient-to-br
-                from-purple-700 to-violet-900 px-10 py-5
-                text-white rounded-md shadow-xl disabled:to-gray-600
-                disabled:from-gray-500 disabled:text-gray-100
-                  disabled:cursor-not-allowed font-semibold'>
+                disabled={
+                  expiration?.toString() < Date.now().toString() ||
+                  remainingTickets?.toNumber() === 0
+                }
+                onClick={handleClick}
+                className='buy-button'>
                   Buy {quantity} tickets for {ticketPrice && 
                     Number(ethers.utils.formatEther(ticketPrice.toString()))
                      * quantity} {" "}
@@ -207,27 +271,34 @@ const Home: NextPage = () => {
               </button>
             </div>
 
-            {userTickets > 0 && (
-              <div className='stats'>
-                <p className='text-lg mb-2'>You have {userTickets} Tickets in this draw</p>
+            <div className='stats'>
+              <p className='text-lg mb-2'>You have {userTickets ? userTickets : 0} Tickets in this draw</p>
+              {userTickets > 0 && (
 
                 <div className='flex max-w-sm flex-wrap gap-x-2 gap-y-2 pt-4'>
                   {Array(userTickets).fill("").map((_, index) => (
                         <img 
-                          className='animate-bounce text-xs italic
-                           text-violet-500 h-20 w-12' 
+                          className='coin text-xs italic
+                            text-violet-500 h-20 w-12' 
                           src="/coin.gif" 
                           alt=""
                         />
                   ))}
                 </div>
-              </div>
-            )};
+
+              )}
+            </div>
           </div>
         </div>
       </div>
-      <footer className='border-t border-violet-500/20 flex items-center
-      text-white justify-between p-5'>
+      <div className="fadeBottom"></div>
+      <footer className='bg-[#191a25] border-t border-violet-500/20 flex items-center
+      text-white justify-start p-5'>
+        <img 
+          className="rounded-full h-10 w-10 fiter hue-rotate-90 opacity-20" 
+          src="/dice.png" 
+          alt=""
+        />
         <p className='text-xs text-violet-400/30 pl-5'>
           DISCLAIMER: We are not liable for any losses that are incurred
           or problems that arise at our online casinos or elsewhere by this apps content.

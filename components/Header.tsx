@@ -7,12 +7,12 @@ function Header() {
     const disconnect = useDisconnect();
         
     return (
-        <header className='grid grid-cols-2 md:grid-cols-5 justify-between
+        <header className='bg-[#040711] grid grid-cols-2 md:grid-cols-5 justify-between
         items-center p-5'>
             <div className='flex items-center space-x-2'>
                 <img 
                   className="rounded-full h-20 w-20" 
-                  src="/profile-image.png" 
+                  src="/dice.png" 
                   alt=""
                 />
                 <div>
@@ -23,9 +23,10 @@ function Header() {
             </div>
 
             <div className='hidden md:flex md:col-span-3 items-center
-            justify-center'>
+                justify-center'>
                 <div className='bg-[#191a25] rounded-md p-4 space-x-2'>
-                    <NavButton isActive title='Buy tickets'/>
+                    <NavButton isActive title='Lottery'/>
+                    <NavButton title='Roulette'/>
                     <NavButton onClick={disconnect} title='Logout'/>
                 </div>
             </div>

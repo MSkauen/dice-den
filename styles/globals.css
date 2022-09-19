@@ -19,4 +19,57 @@
     .countdown-label {
         @apply text-center text-white uppercase text-sm pt-4
     }
+    .admin-button {
+        @apply bg-[#040711] p-2 flex-1 rounded-md border-[#34364b]
+         border-2 hover:bg-[#7e42b1]
+    }
+    .buy-button {
+        @apply mt-5 w-full bg-gradient-to-br
+        from-purple-700 to-violet-900 px-10 py-5 
+        text-white rounded-md shadow-xl disabled:to-gray-600
+        disabled:from-gray-500 disabled:text-gray-100
+        disabled:cursor-not-allowed font-semibold hover:animate-pulse
+    }
+    .coin {
+        @apply hover:scale-110
+    }
+}
+
+.fadeBottom {
+    height: 3.4rem;
+    background-image: linear-gradient(
+        180deg,
+        transparent,
+        rgba(37, 37, 37, 0.61),
+        #111
+    );
+}
+.fadeTop {
+    height: 3.4rem;
+    background-image: linear-gradient(
+        0deg,
+        transparent,
+        rgba(37, 37, 37, 0.41),
+        #111
+    );
+}
+
+.coin {
+    animation: bounce 1s infinite;
+    transition: all 160ms ease-out;
+}
+.coin:hover {
+    cursor: pointer;
+    filter: saturate(150%);
+}
+ 
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(-15%);
+        animation-timing-function: cubic-bezier(0.8,0,1,1);
+    }
+    50% {
+        transform: none;
+        animation-timing-function: cubic-bezier(0,0,0.2,1);
+    }
 }
