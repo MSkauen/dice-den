@@ -11,7 +11,7 @@ function Header() {
         items-center p-5'>
             <div className='flex items-center space-x-2'>
                 <img 
-                  className="rounded-full h-20 w-20" 
+                  className="rounded-full h-20 w-20 animate-pulse"
                   src="/dice.png" 
                   alt=""
                 />

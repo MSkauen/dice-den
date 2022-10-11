@@ -1,27 +1,30 @@
-# Next.js + Tailwind CSS Example
+# Mathias Skauen Harestad's Portfolio V2
 
-This example shows how to use [Tailwind CSS](https://tailwindcss.com/) [(v3.0)](https://tailwindcss.com/blog/tailwindcss-v3) with Next.js. It follows the steps outlined in the official [Tailwind docs](https://tailwindcss.com/docs/guides/nextjs).
+![My website](assets/images/Screenshot.jpg)
 
-## Deploy your own
+This project is still under development, but feel free to install the project yourself.
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-tailwindcss)
+Or check it out live at: http://mathiasharestad.no/
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-tailwindcss&project-name=with-tailwindcss&repository-name=with-tailwindcss)
+## How to run
+* Run command `` npm install ``
+* Run command `` npm start `` / ``npm run start``
+* Go to [http://localhost:3000](http://localhost:3000) in browser. 
 
-## How to use
+* For troubleshooting, see "Troubleshooting" below.
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+## To Do
+* Render images using ImageComponent
+    
+### UI/UX
+* About
+* Experience
+* Skills
+* Projects
+* Contact me
 
-```bash
-npx create-next-app --example with-tailwindcss with-tailwindcss-app
-```
 
-```bash
-yarn create next-app --example with-tailwindcss with-tailwindcss-app
-```
+## Troubleshooting
 
-```bash
-pnpm create next-app --example with-tailwindcss with-tailwindcss-app
-```
-
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+* Run `npm install` - perhaps also delete the `node_modules` directory.
+* Deleting the ``.idea`` folder may also fix some issues.

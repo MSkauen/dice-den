@@ -1,67 +1,85 @@
 import { 
-  useAddress,
-  useContract,
-  useMetamask,
-  useDisconnect,
-  useContractRead,
-  useContractWrite
+  useAddress, useContract, useContractRead, useContractWrite,
 } from '@thirdweb-dev/react';
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from "../components/Header";
 import LoadingView from '../components/LoadingView';
 import LoginView from "../components/LoginView";
-import { ethers } from 'ethers';
+import {BaseContract, ethers} from 'ethers';
 import { currency } from '../constants';
 import CountdownTimer from '../components/CountdownTimer';
 import toast from "react-hot-toast"
 import Marquee from 'react-fast-marquee';
 import AdminControls from '../components/AdminControls';
+import {SmartContract} from "@thirdweb-dev/sdk/dist/declarations/src/contracts/smart-contract";
+
+function contractCalls(contract: SmartContract<BaseContract> | undefined, address: string | undefined) {
+  const {data: winnings} = useContractRead(
+      contract, "getWinningsForAddress", address
+  );
+  const {data: remainingTickets} = useContractRead(
+      contract, "RemainingTickets"
+  );
+  const {data: currentWinningReward} = useContractRead(
+      contract, "CurrentWinningReward"
+  );
+  const {data: ticketCommission} = useContractRead(
+      contract, "ticketCommission"
+  );
+  const {data: ticketPrice} = useContractRead(
+      contract, "ticketPrice"
+  );
+  const {data: expiration} = useContractRead(
+      contract, "expiration"
+  );
+  const {mutateAsync: BuyTickets} = useContractWrite(
+      contract, "BuyTickets"
+  );
+  const {data: tickets} = useContractRead(
+      contract, "getTickets"
+  );
+  const {mutateAsync: withdrawWinnings} = useContractWrite(
+      contract, "WithdrawWinnings"
+  );
+  const {data: lastWinner} = useContractRead(
+      contract, "lastWinner"
+  );
+  const {data: lastWinnerAmount} = useContractRead(
+      contract, "lastWinnerAmount"
+  );
+  const {data: isLotteryOperator} = useContractRead(
+      contract, "lotteryOperator"
+  );
+  return {
+    winnings,
+    remainingTickets,
+    currentWinningReward,
+    ticketCommission,
+    ticketPrice,
+    expiration,
+    BuyTickets,
+    tickets,
+    withdrawWinnings,
+    lastWinner,
+    lastWinnerAmount,
+    isLotteryOperator
+  };
+}
+
 const Home: NextPage = () => {
   const address = useAddress();
   const [userTickets, setUserTickets] = useState(0);
   const [quantity, setQuantity] = useState<number>(1);
 
   const { contract, isLoading } = useContract(
-    process.env.NEXT_PUBLIC_LOTTERY_CONTRACT_ADDRESS
+      process.env.NEXT_PUBLIC_LOTTERY_CONTRACT_ADDRESS
   );
-  const { data: remainingTickets } = useContractRead(
-    contract, "RemainingTickets"
-  );
-  const { data: currentWinningReward } = useContractRead(
-    contract, "CurrentWinningReward"
-  );
-  const { data: ticketCommission } = useContractRead(
-    contract, "ticketCommission"
-  );
-  const { data: ticketPrice } = useContractRead(
-    contract, "ticketPrice"
-  );
-  const { data: expiration } = useContractRead(
-    contract, "expiration"
-  );
-  const { mutateAsync: BuyTickets } = useContractWrite(
-    contract, "BuyTickets"
-  );
-  const { data: tickets } = useContractRead(
-    contract, "getTickets"
-  );
-  const { data: winnings } = useContractRead(
-    contract, "getWinningsForAddress", address
-  );
-  const { mutateAsync: withdrawWinnings } = useContractWrite(
-    contract, "WithdrawWinnings"
-  );
-  const { data: lastWinner } = useContractRead(
-    contract, "lastWinner"
-  );
-  const { data: lastWinnerAmount } = useContractRead(
-    contract, "lastWinnerAmount"
-  );
-  const { data: isLotteryOperator } = useContractRead(
-    contract, "lotteryOperator"
-  );
+
+  const { winnings, remainingTickets, currentWinningReward, ticketCommission,ticketPrice, expiration,
+    BuyTickets, tickets, withdrawWinnings, lastWinner, lastWinnerAmount, isLotteryOperator
+  } = contractCalls(contract, address);
 
   useEffect(() => {
     if (!tickets) return;
@@ -79,17 +97,17 @@ const Home: NextPage = () => {
   const handleClick = async () => {
     if (!ticketPrice) return;
     const notification = toast.loading("Buying tickets..")
-    
+
     try {
       const data = await BuyTickets([
         {
           value: ethers.utils.parseEther(
-          (
-            Number(ethers.utils.formatEther(ticketPrice)) * quantity
-          ).toString()
-        ),
-      },
-    ]);
+            (
+              Number(ethers.utils.formatEther(ticketPrice)) * quantity
+            ).toString()
+          ),
+        },
+      ]);
 
       toast.success("Tickets purchased successfully!", {
         id: notification,
@@ -120,7 +138,7 @@ const Home: NextPage = () => {
     }
   };
 
-  if (isLoading) return <LoadingView/> /*bg-[#040711]*/
+  if (isLoading) return <LoadingView/>
   if (!address) return <LoginView/>
 
   return (
@@ -151,12 +169,16 @@ const Home: NextPage = () => {
               </p>
           </div>
         </Marquee>
-        <div className="fadeTop mb-5"></div>
+        <div className="fadeTop mb-5"/>
+
+        {/* CHECK IF OPERATOR*/}
         {isLotteryOperator === address && (
           <div className=' flex justify-center'>
             <AdminControls/>
           </div>
         )}
+
+        {/* CHECK IF ADDRESS CAN COLLECT WINNINGS*/}
         {winnings > 0 && (
           <div className='max-w-md md:max-w-2xl lg:max-w-4xl mx-auto mt-5'>
             <button onClick={onWithdrawWinnings} className='p-5 bg-gradient-to-br
@@ -182,7 +204,7 @@ const Home: NextPage = () => {
                 <p className='text-xl'>
                   {currentWinningReward && 
                     ethers.utils.formatEther(
-                    currentWinningReward.toString())
+                      currentWinningReward.toString())
                   } {" "}
                   {currency}
                 </p>
@@ -291,7 +313,7 @@ const Home: NextPage = () => {
           </div>
         </div>
       </div>
-      <div className="fadeBottom"></div>
+      <div className="fadeBottom"/>
       <footer className='bg-[#191a25] border-t border-violet-500/20 flex items-center
       text-white justify-start p-5'>
         <img 
@@ -310,3 +332,4 @@ const Home: NextPage = () => {
 }
 
 export default Home
+
